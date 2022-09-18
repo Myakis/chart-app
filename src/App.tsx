@@ -1,8 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import PieChart from "./components/PieChart";
 import Tabs from "./components/Tabs";
+import { categoryFilter, DATA_API, detailsFilter, TCurrency } from "./MOCK_API";
 
 function App() {
+  const [radioSelect, setRadioSelect] = useState<TCurrency>("RUB");
+  const handlerSelectedCurrency = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const currency = e.target.id as TCurrency;
+    setRadioSelect(currency);
+  };
+
   return (
     <div className="App">
       <header className="header">
@@ -12,12 +19,43 @@ function App() {
         <section className="chart">
           <Tabs
             header={[
-              "Сортировка по категориям",
-              "Сортировка по категориям",
               "Сортировка по валюте",
-              "Без сортировки",
+              "Сортировка по категориям",
+              "Детально",
             ]}
-            body={[<PieChart />, <PieChart />, <PieChart />, <PieChart />]}
+            body={[
+              <PieChart
+                dataChart={categoryFilter(DATA_API, "currency")}
+                labelName={"Валюта"}
+              />,
+              <>
+                <div className="converter-container">
+                  <h2>Конвертировать в </h2>
+                  <div className="change">
+                    {["RUB", "USD", "EUR"].map((currency) => (
+                      <label className="converter__label" key={currency}>
+                        <input
+                          className="converter__input"
+                          type="radio"
+                          id={`${currency}`}
+                          checked={radioSelect === currency}
+                          onChange={handlerSelectedCurrency}
+                        />
+                        <span>{currency}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <PieChart
+                  dataChart={categoryFilter(DATA_API, "category", radioSelect)}
+                  labelName={"Категория"}
+                />
+              </>,
+              <PieChart
+                dataChart={detailsFilter(DATA_API)}
+                labelName={"Категория"}
+              />,
+            ]}
           />
         </section>
       </main>

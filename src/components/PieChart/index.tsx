@@ -1,11 +1,16 @@
-import React from "react";
+import React, { FC } from "react";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { categoryFilter, DATA_API } from "../../MOCK_API";
+import { categoryFilter, DATA_API, randomColor } from "../../MOCK_API";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
-const PieChart = () => {
-  const sortedData = categoryFilter(DATA_API, "currency");
+
+interface IProps {
+  dataChart: any[];
+  labelName?: string;
+}
+
+const PieChart: FC<IProps> = ({ dataChart, labelName }) => {
   const getOrCreateLegendList = (chart: any, id: string, className: string) => {
     const legendContainer = document.getElementById(id);
     let listContainer = legendContainer?.querySelector("ul");
@@ -19,6 +24,7 @@ const PieChart = () => {
 
     return listContainer;
   };
+
   const getDataChart = (chart: any) => {
     return chart.config.data.datasets[0].data;
   };
@@ -26,21 +32,25 @@ const PieChart = () => {
   const htmlLegendPlugin = {
     id: "htmlLegend",
     afterUpdate(chart: any, args: any, options: any) {
-      const ul = getOrCreateLegendList(chart, "custom-legend", "list-row");
+      const items = chart.options.plugins.legend.labels.generateLabels(chart);
+
+      const ul = getOrCreateLegendList(
+        chart,
+        "custom-legend",
+        items.length < 4 ? "list-row" : "flex-column"
+      );
       const dataValue = getDataChart(chart);
       // Remove old legend items
       while (ul.firstChild) {
         ul.firstChild.remove();
       }
       // Reuse the built-in legendItems generator
-      const items = chart.options.plugins.legend.labels.generateLabels(chart);
 
       const ulBox = document.createElement("ul");
       ulBox.className = "list-column";
       items.forEach((item: any) => {
         const li = document.createElement("li");
         li.style.alignItems = "center";
-        li.style.cursor = "pointer";
         li.style.display = "flex";
 
         // Color box
@@ -55,11 +65,13 @@ const PieChart = () => {
         li.appendChild(boxSpan);
         ulBox.appendChild(li);
       });
-      ul.appendChild(ulBox);
+      if (items.length < 4) {
+        ul.appendChild(ulBox);
+      }
 
       items.forEach((item: any, index: number) => {
         const li = document.createElement("li");
-        li.className = "center";
+        li.className = items.length < 4 ? "center" : "";
         li.style.alignItems = "center";
         li.style.cursor = "pointer";
         li.style.display = "flex";
@@ -96,7 +108,9 @@ const PieChart = () => {
         textContainer.style.padding = "0";
         textContainer.style.textDecoration = item.hidden ? "line-through" : "";
 
-        const text = document.createTextNode(item.text + " : " + dataValue[index]);
+        const text = document.createTextNode(
+          item.text + " : " + dataValue[index]
+        );
         textContainer.appendChild(text);
 
         li.appendChild(boxSpan);
@@ -105,21 +119,18 @@ const PieChart = () => {
       });
     },
   };
+  const ALPHA = 0.3;
+  const arrayColors = Object.keys(dataChart).map(() => randomColor(ALPHA));
+
   const data = {
-    labels: Object.keys(sortedData).map((item) => `Категория: ${item}`),
+    labels: Object.keys(dataChart).map((item) => `${labelName} ${item}`),
     datasets: [
       {
-        data: Object.values(sortedData),
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.2)",
-          "rgba(54, 162, 235, 0.2)",
-          "rgba(255, 206, 86, 0.2)",
-        ],
-        hoverBackgroundColor: [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-        ],
+        data: Object.values(dataChart),
+        backgroundColor: arrayColors,
+        hoverBackgroundColor: arrayColors.map((color) =>
+          color.replace(`${ALPHA}`, "0.9")
+        ),
         borderWidth: 1,
         hoverOffset: 4,
       },
@@ -137,7 +148,7 @@ const PieChart = () => {
                 display: false,
               },
               tooltip: {
-                enabled: false,
+                // enabled: false,
               },
             },
           }}

@@ -20,7 +20,11 @@ const Tabs: FC<IProps> = ({ header, body }) => {
           {header.map((title, index) => {
             return (
               <li
-                className={cn({ "tabs__item--active": selectedTab === index }, "tabs__item")}
+                key={index}
+                className={cn(
+                  { "tabs__item--active": selectedTab === index },
+                  "tabs__item"
+                )}
                 onClick={() => onChangeSelectTab(index)}
               >
                 {title}
@@ -30,7 +34,7 @@ const Tabs: FC<IProps> = ({ header, body }) => {
         </ul>
         {body.map((item, index) => {
           if (index !== selectedTab) return null;
-          return <div>{item}</div>;
+          return <div key={index}>{item}</div>;
         })}
       </div>
     </div>
