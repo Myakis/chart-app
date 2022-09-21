@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import PieChart from "./components/PieChart";
 import Tabs from "./components/Tabs";
-import { categoryFilter, DATA_API, detailsFilter, TCurrency } from "./MOCK_API";
+import { detailsFilter, sectionFilter } from "./helper/currency";
+import { DATA_API, TCurrency } from "./MOCK_API";
 
 function App() {
   const [radioSelect, setRadioSelect] = useState<TCurrency>("RUB");
@@ -25,7 +26,7 @@ function App() {
             ]}
             body={[
               <PieChart
-                dataChart={categoryFilter(DATA_API, "currency")}
+                dataChart={sectionFilter(DATA_API, "currency")}
                 labelName={"Валюта"}
               />,
               <>
@@ -47,7 +48,7 @@ function App() {
                   </div>
                 </div>
                 <PieChart
-                  dataChart={categoryFilter(DATA_API, "category", radioSelect)}
+                  dataChart={sectionFilter(DATA_API, "category", radioSelect)}
                   labelName={"Категория"}
                 />
               </>,

@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { categoryFilter, DATA_API, randomColor } from "../../MOCK_API";
+import { randomColor } from "../../helper/randomColor";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
